@@ -39,6 +39,47 @@ Example:
 
 ---
 
+### Classification Workflow
+
+**Show merchants still unresolved (currently tagged `Other`):**
+
+```bash
+./expense-tracker query unknown-merchants
+```
+
+**Show unresolved merchants for a specific month:**
+
+```bash
+./expense-tracker query unknown-merchants YYYY-MM
+```
+
+**Classify unresolved merchants, persist them to `merchant_map.json`, and backfill old rows:**
+
+```bash
+./expense-tracker classify-unknowns
+```
+
+**Restrict classification/backfill to merchants seen in a specific month:**
+
+```bash
+./expense-tracker classify-unknowns YYYY-MM
+```
+
+**Reclassify every transaction in the database using the latest rules and merchant map:**
+
+```bash
+./expense-tracker reclassify
+```
+
+Notes:
+- Normal loads stay deterministic and cheap.
+- Known merchants are resolved from `merchant_map.json` first.
+- Heuristic rules run before the fallback `Other` classification.
+- `classify-unknowns` is the explicit map-growing step.
+- Backfill means old rows in SQLite get updated to match newly learned mappings.
+
+---
+
 ### Querying the Database
 
 **Total spending for the current month:**
@@ -187,9 +228,9 @@ revolut/
 | Refund           | Card refunds (excluded from totals)                     |
 | Transfer         | Third-party transfers (excluded from totals)            |
 | Savings Transfer | Transfers to KEVIN K SAJI / POSB (excluded from totals) |
-| Other            | Unknown merchants (LLM fallback)                        |
+| Other            | Unknown merchants still unresolved after heuristics     |
 
-To add a new merchant mapping, edit `merchant_map.json` at the project root.
+`merchant_map.json` remains the source of truth for learned merchant mappings.
 
 ---
 

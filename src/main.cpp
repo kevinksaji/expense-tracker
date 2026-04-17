@@ -11,12 +11,15 @@ static void print_usage()
 {
     std::cerr << "Usage:\n"
               << "  expense-tracker load <path-to-tsv>                  # parse + classify + store\n"
+              << "  expense-tracker classify-unknowns [YYYY-MM]         # map + backfill merchants currently in Other\n"
+              << "  expense-tracker reclassify                          # reclassify all DB rows from current rules/map\n"
               << "  expense-tracker query total-month [YYYY-MM]         # total spending for month\n"
               << "  expense-tracker query by-category [YYYY-MM]         # month breakdown by category\n"
               << "  expense-tracker query total-day [YYYY-MM-DD]        # total spending for day\n"
               << "  expense-tracker query by-category-day [YYYY-MM-DD]  # daily breakdown by category\n"
               << "  expense-tracker query summary-month [YYYY-MM]       # compact month summary\n"
               << "  expense-tracker query summary-day [YYYY-MM-DD]      # compact daily summary\n"
+              << "  expense-tracker query unknown-merchants [YYYY-MM]   # unresolved merchants currently tagged Other\n"
               << "  expense-tracker query range YYYY-MM-DD YYYY-MM-DD   # spending over date range\n";
 }
 
@@ -75,6 +78,57 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    if (cmd == "classify-unknowns")
+    {
+        const std::string month = (argc >= 3) ? argv[2] : "";
+        std::filesystem::create_directories("data");
+
+        DB database(db_path);
+        database.create_table();
+        Classifier classifier("merchant_map.json");
+
+        const auto unknowns = database.unknown_merchants(month);
+        if (unknowns.empty())
+        {
+            std::cout << "No unknown merchants found.\n";
+            return 0;
+        }
+
+        int mapped = 0;
+        int backfilled = 0;
+        for (const auto &[merchant, total] : unknowns)
+        {
+            const std::string category = classifier.classify_merchant(merchant);
+            if (category == "Other")
+            {
+                std::cout << merchant << " | SGD " << total << " | remains Other\n";
+                continue;
+            }
+
+            classifier.set_mapping(merchant, category);
+            const int updated = database.update_category_for_merchant(merchant, category);
+            std::cout << merchant << " | SGD " << total << " | " << category
+                      << " | backfilled " << updated << " row(s)\n";
+            ++mapped;
+            backfilled += updated;
+        }
+
+        classifier.save_map();
+        std::cout << "\nMapped " << mapped << " merchant(s); backfilled " << backfilled << " row(s).\n";
+        return 0;
+    }
+
+    if (cmd == "reclassify")
+    {
+        std::filesystem::create_directories("data");
+        DB database(db_path);
+        database.create_table();
+        Classifier classifier("merchant_map.json");
+        const int updated = database.reclassify_all(classifier);
+        std::cout << "Reclassified " << updated << " row(s).\n";
+        return 0;
+    }
+
     // ── query subcommand ──────────────────────────────────────────────────────
     if (cmd == "query")
     {
@@ -119,6 +173,27 @@ int main(int argc, char *argv[])
         {
             const std::string date = (argc >= 4) ? argv[3] : "";
             query_summary_day(db, date);
+        }
+        else if (op == "unknown-merchants")
+        {
+            DB database(db_path);
+            const std::string month = (argc >= 4) ? argv[3] : "";
+            const auto rows = database.unknown_merchants(month);
+            if (rows.empty())
+            {
+                std::cout << "No unknown merchants found.\n";
+            }
+            else
+            {
+                std::cout << "Unknown merchants";
+                if (!month.empty())
+                    std::cout << " for " << month;
+                std::cout << ":\n";
+                for (const auto &[merchant, total] : rows)
+                {
+                    std::cout << "  " << merchant << " | SGD " << total << "\n";
+                }
+            }
         }
         else if (op == "range")
         {
