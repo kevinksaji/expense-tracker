@@ -3,10 +3,15 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/src",
+                "/opt/homebrew/opt/llvm/include/c++/v1",
+                "/opt/homebrew/opt/llvm/lib/clang/22/include",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
             ],
             "defines": [],
-            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang",
+            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang++",
+            "compilerArgs": ["-std=c++23"],
             "cStandard": "c23",
             "cppStandard": "c++23",
             "intelliSenseMode": "macos-clang-arm64"

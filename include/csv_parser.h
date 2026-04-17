@@ -15,3 +15,5 @@ struct Transaction
     double balance;
     std::string category;
 };
+
+std::vector<Transaction> parse_tsv(const std::string &filepath);
