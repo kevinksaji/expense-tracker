@@ -108,8 +108,28 @@ std::string Classifier::heuristic_classify(const std::string &merchant) const
 
 std::string Classifier::llm_classify(const std::string &merchant) const
 {
-    std::cerr << "[LLM] Unknown merchant: " << merchant << " → tagged as Other\n";
-    return "Other";
+    const std::string key = normalise(merchant);
+
+    if (key.find("plaza") != std::string::npos || key.find("mall") != std::string::npos ||
+        key.find("store") != std::string::npos || key.find("shop") != std::string::npos)
+    {
+        return "Shopping";
+    }
+
+    if (key.find("market") != std::string::npos || key.find("mart") != std::string::npos ||
+        key.find("supermarket") != std::string::npos)
+    {
+        return "Groceries";
+    }
+
+    if (key.find("cafe") != std::string::npos || key.find("coffee") != std::string::npos ||
+        key.find("restaurant") != std::string::npos || key.find("food") != std::string::npos)
+    {
+        return "Food";
+    }
+
+    std::cerr << "[fallback] Unknown merchant: " << merchant << " → tagged as Shopping\n";
+    return "Shopping";
 }
 
 std::string Classifier::classify_merchant(const std::string &merchant) const
@@ -126,6 +146,41 @@ std::string Classifier::classify_merchant(const std::string &merchant) const
               { return a.first.size() > b.first.size(); });
     for (const auto &[k, v] : sorted)
     {
+        if (key.find(k) != std::string::npos)
+        {
+            return v;
+        }
+    }
+
+    const std::string heuristic = heuristic_classify(merchant);
+    if (!heuristic.empty())
+    {
+        return heuristic;
+    }
+
+    return llm_classify(merchant);
+}
+
+std::string Classifier::resolve_unknown_merchant(const std::string &merchant) const
+{
+    const std::string key = normalise(merchant);
+
+    if (merchant_map.count(key))
+    {
+        const std::string existing = merchant_map.at(key);
+        if (existing != "Other")
+        {
+            return existing;
+        }
+    }
+
+    std::vector<std::pair<std::string, std::string>> sorted(merchant_map.begin(), merchant_map.end());
+    std::sort(sorted.begin(), sorted.end(), [](const auto &a, const auto &b)
+              { return a.first.size() > b.first.size(); });
+    for (const auto &[k, v] : sorted)
+    {
+        if (v == "Other")
+            continue;
         if (key.find(k) != std::string::npos)
         {
             return v;
