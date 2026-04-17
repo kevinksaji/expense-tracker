@@ -198,7 +198,9 @@ std::string Classifier::resolve_unknown_merchant(const std::string &merchant) co
 
 void Classifier::classify(Transaction &t)
 {
-    if (t.type == "Transfer" && normalise(t.description) == "kevin k saji")
+    const std::string description = normalise(t.description);
+
+    if (t.type == "Transfer" && description == "kevin k saji")
     {
         t.category = "Savings Transfer";
         return;
@@ -213,6 +215,12 @@ void Classifier::classify(Transaction &t)
     if (t.type == "Card Refund")
     {
         t.category = "Refund";
+        return;
+    }
+
+    if (t.type == "Topup" || (t.amount > 0 && description.find("transfer from") != std::string::npos))
+    {
+        t.category = "Topup";
         return;
     }
 
