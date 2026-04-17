@@ -10,10 +10,14 @@
 static void print_usage()
 {
     std::cerr << "Usage:\n"
-              << "  expense-tracker load <path-to-tsv>             # parse + classify + store\n"
-              << "  expense-tracker query total-month [YYYY-MM]    # total spending for month\n"
-              << "  expense-tracker query by-category [YYYY-MM]    # breakdown by category\n"
-              << "  expense-tracker query range YYYY-MM-DD YYYY-MM-DD  # spending over date range\n";
+              << "  expense-tracker load <path-to-tsv>                  # parse + classify + store\n"
+              << "  expense-tracker query total-month [YYYY-MM]         # total spending for month\n"
+              << "  expense-tracker query by-category [YYYY-MM]         # month breakdown by category\n"
+              << "  expense-tracker query total-day [YYYY-MM-DD]        # total spending for day\n"
+              << "  expense-tracker query by-category-day [YYYY-MM-DD]  # daily breakdown by category\n"
+              << "  expense-tracker query summary-month [YYYY-MM]       # compact month summary\n"
+              << "  expense-tracker query summary-day [YYYY-MM-DD]      # compact daily summary\n"
+              << "  expense-tracker query range YYYY-MM-DD YYYY-MM-DD   # spending over date range\n";
 }
 
 static sqlite3 *open_db(const std::string &db_path)
@@ -95,6 +99,26 @@ int main(int argc, char *argv[])
         {
             const std::string month = (argc >= 4) ? argv[3] : "";
             query_by_category(db, month);
+        }
+        else if (op == "total-day")
+        {
+            const std::string date = (argc >= 4) ? argv[3] : "";
+            query_total_day(db, date);
+        }
+        else if (op == "by-category-day")
+        {
+            const std::string date = (argc >= 4) ? argv[3] : "";
+            query_by_category_day(db, date);
+        }
+        else if (op == "summary-month")
+        {
+            const std::string month = (argc >= 4) ? argv[3] : "";
+            query_summary_month(db, month);
+        }
+        else if (op == "summary-day")
+        {
+            const std::string date = (argc >= 4) ? argv[3] : "";
+            query_summary_day(db, date);
         }
         else if (op == "range")
         {

@@ -67,6 +67,30 @@ Example: `./expense-tracker query total-month 2026-04`
 ./expense-tracker query by-category YYYY-MM
 ```
 
+**Total spending for a specific day:**
+
+```bash
+./expense-tracker query total-day YYYY-MM-DD
+```
+
+**Daily spending breakdown by category:**
+
+```bash
+./expense-tracker query by-category-day YYYY-MM-DD
+```
+
+**Compact monthly summary:**
+
+```bash
+./expense-tracker query summary-month YYYY-MM
+```
+
+**Compact daily summary:**
+
+```bash
+./expense-tracker query summary-day YYYY-MM-DD
+```
+
 **Total spending over a custom date range:**
 
 ```bash
