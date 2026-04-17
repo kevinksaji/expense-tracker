@@ -229,6 +229,7 @@ revolut/
 | Refund           | Card refunds (excluded from totals)                     |
 | Transfer         | Third-party transfers (excluded from totals)            |
 | Savings Transfer | Transfers to KEVIN K SAJI / POSB (excluded from totals) |
+| Topup            | Account topups / inflows (excluded from totals)         |
 | Other            | Unknown merchants still unresolved after heuristics     |
 
 `merchant_map.json` remains the source of truth for learned merchant mappings.
