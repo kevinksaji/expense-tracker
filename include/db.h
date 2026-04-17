@@ -2,6 +2,8 @@
 #include "csv_parser.h"
 #include <string>
 #include <sqlite3.h>
+#include <vector>
+#include <utility>
 
 class DB
 {
@@ -15,6 +17,15 @@ public:
 
     // Inserts a single classified transaction
     void insert(const Transaction &t);
+
+    // Find merchants currently classified as Other, optionally filtered by month (YYYY-MM)
+    std::vector<std::pair<std::string, double>> unknown_merchants(const std::string &month = "") const;
+
+    // Update category for all rows whose description matches the merchant string exactly
+    int update_category_for_merchant(const std::string &merchant, const std::string &category);
+
+    // Reclassify all rows using the provided classifier
+    int reclassify_all(class Classifier &classifier);
 
 private:
     sqlite3 *db_ = nullptr; // raw SQLite handle
