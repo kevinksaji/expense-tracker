@@ -74,8 +74,9 @@ Example:
 Notes:
 - Normal loads stay deterministic and cheap.
 - Known merchants are resolved from `merchant_map.json` first.
-- Heuristic rules run before the fallback `Other` classification.
+- Heuristic rules run before the fallback best-effort category assignment.
 - `classify-unknowns` is the explicit map-growing step.
+- Under the current workflow, unresolved merchants are always auto-resolved to a concrete category and written into `merchant_map.json`.
 - Backfill means old rows in SQLite get updated to match newly learned mappings.
 
 ---

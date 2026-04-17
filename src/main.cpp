@@ -96,25 +96,21 @@ int main(int argc, char *argv[])
 
         int mapped = 0;
         int backfilled = 0;
+        std::cout << "Change Summary\n";
         for (const auto &[merchant, total] : unknowns)
         {
-            const std::string category = classifier.classify_merchant(merchant);
-            if (category == "Other")
-            {
-                std::cout << merchant << " | SGD " << total << " | remains Other\n";
-                continue;
-            }
-
+            const std::string category = classifier.resolve_unknown_merchant(merchant);
             classifier.set_mapping(merchant, category);
             const int updated = database.update_category_for_merchant(merchant, category);
-            std::cout << merchant << " | SGD " << total << " | " << category
-                      << " | backfilled " << updated << " row(s)\n";
+            std::cout << "- " << merchant << " → " << category
+                      << " (SGD " << total << ", backfilled " << updated << " row(s))\n";
             ++mapped;
             backfilled += updated;
         }
 
         classifier.save_map();
-        std::cout << "\nMapped " << mapped << " merchant(s); backfilled " << backfilled << " row(s).\n";
+        std::cout << "Total merchants updated: " << mapped << "\n";
+        std::cout << "Total rows backfilled: " << backfilled << "\n";
         return 0;
     }
 

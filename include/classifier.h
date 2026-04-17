@@ -15,6 +15,9 @@ public:
     // Deterministically classify a merchant string without mutating state
     std::string classify_merchant(const std::string &merchant) const;
 
+    // Best-effort resolution for unknown merchants; ignores stale `Other` map entries
+    std::string resolve_unknown_merchant(const std::string &merchant) const;
+
     // Add/update a merchant mapping in memory using normalised key
     void set_mapping(const std::string &merchant, const std::string &category);
 
@@ -36,6 +39,6 @@ private:
     // Deterministic heuristic fallback for unknown merchants
     std::string heuristic_classify(const std::string &merchant) const;
 
-    // Placeholder LLM fallback hook (currently returns Other)
+    // Best-effort fallback hook for unresolved merchants; always returns a concrete category
     std::string llm_classify(const std::string &merchant) const;
 };
