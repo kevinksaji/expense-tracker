@@ -1,0 +1,25 @@
+# ── Build output ─────────────────────────────────────────────────────────────
+expense-tracker
+*.o
+*.d
+*.dSYM/
+
+# ── Database ──────────────────────────────────────────────────────────────────
+data/transactions.db
+data/transactions.db-shm
+data/transactions.db-wal
+
+# ── Vendored single-header (regenerate with curl) ────────────────────────────
+include/json.hpp
+
+# ── IntelliSense (machine-specific) ──────────────────────────────────────────
+compile_commands.json
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
