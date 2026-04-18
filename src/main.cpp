@@ -14,6 +14,7 @@ static void print_usage()
               << "  expense-tracker classify-unknowns [YYYY-MM]         # map + backfill merchants currently in Other\n"
               << "  expense-tracker reclassify                          # reclassify all DB rows from current rules/map\n"
               << "  expense-tracker query total-month [YYYY-MM]         # total spending for month\n"
+              << "  expense-tracker query balance [YYYY-MM]             # latest reliable balance for month\n"
               << "  expense-tracker query by-category [YYYY-MM]         # month breakdown by category\n"
               << "  expense-tracker query total-day [YYYY-MM-DD]        # total spending for day\n"
               << "  expense-tracker query by-category-day [YYYY-MM-DD]  # daily breakdown by category\n"
@@ -144,6 +145,11 @@ int main(int argc, char *argv[])
         {
             const std::string month = (argc >= 4) ? argv[3] : "";
             query_total_month(db, month);
+        }
+        else if (op == "balance")
+        {
+            const std::string month = (argc >= 4) ? argv[3] : "";
+            query_balance(db, month);
         }
         else if (op == "by-category")
         {

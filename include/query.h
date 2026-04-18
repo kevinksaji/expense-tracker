@@ -25,3 +25,6 @@ void query_summary_month(sqlite3 *db, const std::string &month = "");
 
 // Compact summary output for a date (YYYY-MM-DD) or today if empty
 void query_summary_day(sqlite3 *db, const std::string &date = "");
+
+// Latest reliable balance for a month (YYYY-MM) or current month if empty
+void query_balance(sqlite3 *db, const std::string &month = "");

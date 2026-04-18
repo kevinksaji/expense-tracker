@@ -97,6 +97,18 @@ Notes:
 
 Example: `./expense-tracker query total-month 2026-04`
 
+**Latest reliable balance for the current month:**
+
+```bash
+./expense-tracker query balance
+```
+
+**Latest reliable balance for a specific month:**
+
+```bash
+./expense-tracker query balance YYYY-MM
+```
+
 **Spending breakdown by category (current month):**
 
 ```bash
