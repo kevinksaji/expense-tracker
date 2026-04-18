@@ -97,17 +97,13 @@ Notes:
 
 Example: `./expense-tracker query total-month 2026-04`
 
-**Latest reliable balance for the current month:**
+**Current balance (from the latest inserted transaction row):**
 
 ```bash
 ./expense-tracker query balance
 ```
 
-**Latest reliable balance for a specific month:**
-
-```bash
-./expense-tracker query balance YYYY-MM
-```
+`query balance YYYY-MM` is still accepted for compatibility, but the command now returns the global current balance from the most recently inserted DB row.
 
 **Spending breakdown by category (current month):**
 

@@ -125,33 +125,17 @@ static std::vector<std::pair<std::string, double>> fetch_categories_for_day(sqli
     return rows;
 }
 
-static std::string normalise_sql_timestamp_expr(const std::string &column)
+static double fetch_current_balance(sqlite3 *db)
 {
-    return "CASE "
-           "WHEN " + column + " IS NULL OR " + column + " = '' THEN '' "
-           "WHEN length(" + column + ") = 18 THEN substr(" + column + ", 1, 11) || '0' || substr(" + column + ", 12) "
-           "ELSE " + column + " END";
-}
-
-static double fetch_latest_balance_for_month(sqlite3 *db, const std::string &month)
-{
-    const std::string completed_expr = normalise_sql_timestamp_expr("completed_date");
-    const std::string started_expr = normalise_sql_timestamp_expr("started_date");
-
     const std::string sql =
         "SELECT balance "
         "FROM transactions "
-        "WHERE substr(started_date, 1, 7) = ? "
-        "  AND balance IS NOT NULL "
-        "ORDER BY "
-        "  CASE WHEN completed_date IS NULL OR completed_date = '' THEN 1 ELSE 0 END ASC, "
-        "  COALESCE(NULLIF(" + completed_expr + ", ''), " + started_expr + ") DESC, "
-        "  " + started_expr + " DESC "
+        "WHERE balance IS NOT NULL "
+        "ORDER BY id DESC "
         "LIMIT 1;";
 
     sqlite3_stmt *stmt = nullptr;
     sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
-    sqlite3_bind_text(stmt, 1, month.c_str(), -1, SQLITE_TRANSIENT);
 
     double balance = 0.0;
     if (sqlite3_step(stmt) == SQLITE_ROW)
@@ -271,9 +255,9 @@ void query_summary_day(sqlite3 *db, const std::string &date)
 
 void query_balance(sqlite3 *db, const std::string &month)
 {
-    const std::string m = month.empty() ? current_month() : month;
-    const double balance = fetch_latest_balance_for_month(db, m);
+    (void)month;
+    const double balance = fetch_current_balance(db);
 
-    std::cout << "Latest reliable balance for " << m << ":\n";
+    std::cout << "Current balance:\n";
     std::cout << "  SGD " << std::fixed << std::setprecision(2) << balance << "\n";
 }
