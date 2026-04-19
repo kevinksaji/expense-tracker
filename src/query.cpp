@@ -131,6 +131,7 @@ static double fetch_current_balance(sqlite3 *db)
         "SELECT balance "
         "FROM transactions "
         "WHERE balance IS NOT NULL "
+        "  AND balance > 0 "
         "ORDER BY id DESC "
         "LIMIT 1;";
 
